@@ -130,6 +130,7 @@ Analysis analyzePassword(String pwd) {
   if (pwd.contains(RegExp(r'[0-9]'))) pool += 10;
   if (pwd.contains(RegExp(r'[^A-Za-z0-9]'))) pool += 28;
   var bits = pwd.length * (log(max(pool, 2)) / ln2);
+  bits = min(bits, _structuredBits(pwd, pool));
 
   final lowered = pwd.toLowerCase();
   if (_common.any((c) => lowered.contains(c))) {
@@ -153,6 +154,56 @@ Analysis analyzePassword(String pwd) {
   if (!pwd.contains(RegExp(r'[0-9]'))) tips.add('Agrega números.');
   if (!pwd.contains(RegExp(r'[^A-Za-z0-9]'))) tips.add('Agrega símbolos.');
   return Analysis(bits, tips);
+}
+
+const _extraWords = [
+  'amor', 'hola', 'mexico', 'america', 'futbol', 'messi', 'pablo', 'maria',
+  'carlos', 'juan', 'luis', 'jose', 'ana', 'sofia', 'angel', 'diego',
+  'password', 'contrasena', 'admin', 'usuario', 'love', 'gatito', 'perrito',
+  'princesa', 'estrella', 'corazon', 'familia', 'secreto', 'azul', 'rojo',
+  'verde', 'negro', 'blanco', 'chivas', 'barcelona', 'madrid', 'naruto',
+];
+
+final Set<String> _dictionary = {
+  for (final w in [...wordlist, ..._extraWords, ..._common])
+    if (w.length >= 4) w,
+};
+
+/// Estimacion que reconoce palabras comunes y años: cada palabra cuesta
+/// ~11 bits, un año ~7 bits y cada digito suelto ~3.3 bits.
+double _structuredBits(String pwd, int pool) {
+  final s = pwd.toLowerCase();
+  final perChar = log(max(pool, 2)) / ln2;
+  var bits = 0.0;
+  var i = 0;
+  while (i < s.length) {
+    var matched = 0;
+    for (var len = min(10, s.length - i); len >= 4; len--) {
+      if (_dictionary.contains(s.substring(i, i + len))) {
+        matched = len;
+        break;
+      }
+    }
+    if (matched > 0) {
+      bits += 11;
+      i += matched;
+      continue;
+    }
+    final year = RegExp(r'^(19|20)\d\d').firstMatch(s.substring(i));
+    if (year != null) {
+      bits += 7;
+      i += 4;
+      continue;
+    }
+    final isDigit = s.codeUnitAt(i) >= 48 && s.codeUnitAt(i) <= 57;
+    bits += isDigit && pool <= 36 ? 3.3 : perChar;
+    i++;
+  }
+  if (pwd.isNotEmpty && pwd[0] == pwd[0].toUpperCase() &&
+      pwd[0] != pwd[0].toLowerCase()) {
+    bits += 1;
+  }
+  return bits;
 }
 
 bool _hasSequence(String s) {
