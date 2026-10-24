@@ -43,7 +43,11 @@ class _CheckPageState extends State<CheckPage> {
           onChanged: _onChanged,
           decoration: InputDecoration(
             labelText: 'Escribe una contraseña para evaluarla',
-            border: const OutlineInputBorder(),
+            filled: true,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
             suffixIcon: IconButton(
               icon: Icon(_hidden ? Icons.visibility : Icons.visibility_off),
               onPressed: () => setState(() => _hidden = !_hidden),

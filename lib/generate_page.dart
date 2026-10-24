@@ -69,17 +69,36 @@ class _GeneratePageState extends State<GeneratePage> {
           },
         ),
         const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: SelectableText(
-              _value,
-              style: const TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0F766E), Color(0xFF0891B2)],
             ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.lock, color: Colors.white70, size: 18),
+                  SizedBox(width: 6),
+                  Text('Tu nueva clave',
+                      style: TextStyle(color: Colors.white70)),
+                ],
+              ),
+              const SizedBox(height: 10),
+              SelectableText(
+                _value,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 8),
@@ -89,20 +108,30 @@ class _GeneratePageState extends State<GeneratePage> {
           children: [
             Expanded(
               child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                ),
                 onPressed: _regenerate,
                 icon: const Icon(Icons.refresh),
                 label: const Text('Generar otra'),
               ),
             ),
             const SizedBox(width: 8),
-            OutlinedButton.icon(
+            FilledButton.tonalIcon(
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 50),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+              ),
               onPressed: _copy,
               icon: const Icon(Icons.copy),
               label: const Text('Copiar'),
             ),
           ],
         ),
-        const Divider(height: 32),
+        const SizedBox(height: 16),
         if (_passphrase) ...[
           Text('Palabras: $_words'),
           Slider(
